@@ -6,7 +6,11 @@
 <title>Карта событий онбординга — МШП</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Caveat:wght@600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<!-- Подключаем html2canvas для сохранения в PNG -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<!-- Подключаем библиотеку для генерации чистого QR-кода -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
   :root{
     --blue:#008AFB;
@@ -19,9 +23,9 @@
     --orange:#FF8B3D;
     --violet:#8B5CF6;
     --border:#CDEBFF;
-    --radius-card:22px;
-    --radius-btn:14px;
-    --shadow:0 4px 14px rgba(0,138,251,.10);
+    --radius-card:16px;
+    --radius-btn:12px;
+    --shadow:0 3px 12px rgba(0,138,251,.08);
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
@@ -31,302 +35,247 @@
     color:var(--text);
     background:var(--white);
     background-image:
-      radial-gradient(circle at 12% 8%, #EAF8FF 0, transparent 42%),
-      radial-gradient(circle at 88% 92%, #DDF6FF 0, transparent 45%);
-    line-height:1.5;
+      radial-gradient(circle at 10% 5%, #EAF8FF 0, transparent 35%),
+      radial-gradient(circle at 90% 95%, #DDF6FF 0, transparent 35%);
+    line-height:1.4;
     -webkit-text-size-adjust:100%;
   }
-  .wrap{max-width:1180px;margin:0 auto;padding:28px 20px 96px;}
+  .wrap{max-width:700px;margin:0 auto;padding:12px 10px 50px;}
 
   /* ---------- HEADER ---------- */
   header.top{
-    display:flex;flex-wrap:wrap;gap:20px;align-items:center;
-    justify-content:space-between;
+    display:flex;flex-direction:column;gap:12px;
     background:var(--white);
     border:1px solid var(--border);
     border-radius:var(--radius-card);
     box-shadow:var(--shadow);
-    padding:22px 24px;
-    margin-bottom:18px;
+    padding:14px 16px;
+    margin-bottom:12px;
   }
-  .logo{display:flex;align-items:center;gap:14px;min-width:0;}
+  .logo{display:flex;align-items:center;gap:10px;min-width:0;}
   .logo-mark{
-    width:54px;height:54px;flex:0 0 54px;border-radius:16px;
+    width:40px;height:40px;flex:0 0 40px;border-radius:12px;
     background:linear-gradient(135deg,var(--blue),var(--teal));
     display:flex;align-items:center;justify-content:center;
-    color:#fff;font-weight:800;font-size:19px;letter-spacing:.5px;
+    color:#fff;font-weight:800;font-size:15px;letter-spacing:.5px;
   }
-  .logo-text strong{display:block;font-weight:800;font-size:17px;line-height:1.2;}
-  .logo-text span{display:block;font-size:13px;color:#6d7b87;}
+  .logo-text strong{display:block;font-weight:800;font-size:14px;line-height:1.2;}
+  .logo-text span{display:block;font-size:11px;color:#6d7b87;}
   h1{
-    font-weight:800;font-size:clamp(21px,2.6vw,30px);
-    margin:0;max-width:640px;line-height:1.2;
+    font-weight:800;font-size:18px;
+    margin:0;line-height:1.25;
   }
-  .subtitle{margin:8px 0 0;font-size:14px;color:#6d7b87;max-width:640px;}
-  .head-actions{display:flex;gap:10px;flex-wrap:wrap;}
+  .subtitle{margin:2px 0 0;font-size:12px;color:#6d7b87;}
+  .head-actions{display:flex;gap:8px;width:100%;}
+  .head-actions button{flex:1;}
 
   /* ---------- BUTTONS ---------- */
-  button{font-family:inherit;font-weight:700;cursor:pointer;transition:.18s ease;}
+  button{font-family:inherit;font-weight:700;cursor:pointer;transition:.18s ease;min-height:42px;}
   .btn{
     border-radius:var(--radius-btn);
-    padding:11px 18px;font-size:14px;
+    padding:8px 12px;font-size:13px;
     border:2px solid var(--border);
     background:var(--white);color:var(--blue);
   }
-  .btn:hover{border-color:var(--blue);background:#F4FBFF;}
-  .btn:active{transform:translateY(1px);}
-  .btn:focus-visible{outline:3px solid #9AD6FF;outline-offset:2px;}
+  .btn:active{transform:scale(0.98);}
   .btn.primary{background:var(--blue);border-color:var(--blue);color:#fff;}
-  .btn.primary:hover{background:#0077DA;border-color:#0077DA;}
   .btn.done{background:var(--green);border-color:var(--green);color:#fff;}
 
   /* ---------- FILTERS ---------- */
   .filters{
-    display:flex;flex-wrap:wrap;gap:10px;align-items:center;
-    margin:0 0 26px;
+    display:flex;gap:6px;align-items:center;
+    margin:0 0 16px;overflow-x:auto;padding-bottom:4px;
+    -webkit-overflow-scrolling:touch;
   }
-  .filters .label{font-size:13px;color:#6d7b87;margin-right:4px;}
+  .filters::-webkit-scrollbar{display:none;}
   .chip{
     border-radius:999px;border:2px solid var(--border);background:var(--white);
-    color:var(--text);padding:8px 16px;font-size:13.5px;
-    display:inline-flex;align-items:center;gap:8px;
+    color:var(--text);padding:8px 14px;font-size:13px;
+    display:inline-flex;align-items:center;gap:6px;flex:0 0 auto;
+    min-height:38px;
   }
-  .chip .dot{width:10px;height:10px;border-radius:50%;background:var(--blue);}
+  .chip .dot{width:8px;height:8px;border-radius:50%;background:var(--blue);}
   .chip[data-f="done"] .dot{background:var(--green);}
   .chip[data-f="now"] .dot{background:var(--orange);}
   .chip[data-f="next"] .dot{background:var(--violet);}
-  .chip:hover{border-color:var(--blue);}
-  .chip:focus-visible{outline:3px solid #9AD6FF;outline-offset:2px;}
   .chip.active{background:var(--blue);border-color:var(--blue);color:#fff;}
   .chip.active .dot{background:#fff;}
 
-  /* ---------- TIMELINE ---------- */
-  .timeline{position:relative;}
+  /* ---------- TIMELINE (MOBILE FIRST) ---------- */
+  .timeline{position:relative;display:flex;flex-direction:column;gap:14px;padding-left:24px;}
   .timeline::before{
-    content:"";position:absolute;left:50%;top:6px;bottom:6px;width:3px;
-    transform:translateX(-50%);
-    background:linear-gradient(180deg,var(--bg-soft2),var(--blue) 22%,var(--orange) 46%,var(--violet));
-    border-radius:3px;opacity:.75;
+    content:"";position:absolute;left:10px;top:6px;bottom:6px;width:3px;
+    background:linear-gradient(180deg,var(--bg-soft2),var(--blue) 25%,var(--orange) 55%,var(--violet));
+    border-radius:3px;opacity:.7;
   }
-  .row{
-    position:relative;
-    display:grid;grid-template-columns:1fr 92px 1fr;
-    align-items:center;
-    margin:0 0 30px;
-  }
+
+  .row{position:relative;}
   .row .node{
-    grid-column:2;justify-self:center;
-    width:64px;height:64px;border-radius:50%;
-    background:var(--white);border:3px solid var(--blue);
+    position:absolute;left:-29px;top:14px;
+    width:36px;height:36px;border-radius:50%;
+    background:var(--white);border:2.5px solid var(--blue);
     display:flex;flex-direction:column;align-items:center;justify-content:center;
-    font-weight:800;color:var(--blue);font-size:13px;line-height:1.05;
+    font-weight:800;color:var(--blue);font-size:9px;line-height:1;
     box-shadow:var(--shadow);z-index:2;text-align:center;
   }
-  .row .node b{font-size:22px;display:block;}
+  .row .node b{font-size:13px;display:block;}
   .row.is-done .node{border-color:var(--green);color:var(--green);}
   .row.is-next .node{border-color:var(--violet);color:var(--violet);}
   .row.is-now .node{border-color:var(--orange);color:#fff;background:var(--orange);}
-  .row.is-now .node::after{
-    content:"";position:absolute;width:64px;height:64px;border-radius:50%;
-    border:3px solid var(--orange);opacity:.55;animation:pulse 2s infinite;
-  }
-  @keyframes pulse{
-    0%{transform:scale(1);opacity:.55;}
-    70%{transform:scale(1.55);opacity:0;}
-    100%{transform:scale(1.55);opacity:0;}
-  }
-  @media (prefers-reduced-motion:reduce){
-    .row.is-now .node::after{animation:none;}
-  }
+
   .card{
     background:var(--white);
     border:1px solid var(--border);
     border-radius:var(--radius-card);
     box-shadow:var(--shadow);
-    padding:20px 22px;
+    padding:14px 16px;
     position:relative;
   }
-  .row:nth-child(odd) .card{grid-column:1;}
-  .row:nth-child(even) .card{grid-column:3;}
-  .row:nth-child(odd) .card::after,
-  .row:nth-child(even) .card::after{
-    content:"";position:absolute;top:50%;width:14px;height:14px;
-    background:var(--white);
-    border-top:1px solid var(--border);border-right:1px solid var(--border);
-    transform:translateY(-50%) rotate(45deg);
-  }
-  .row:nth-child(odd) .card::after{right:-8px;}
-  .row:nth-child(even) .card::after{left:-8px;transform:translateY(-50%) rotate(-135deg);}
-
   .row.is-now .card{border:2px solid var(--orange);}
-  .card-head{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:6px;}
-  .wk{font-weight:800;font-size:18px;}
-  .dates{font-size:13px;color:#6d7b87;font-weight:700;}
+  
+  .card-head{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:4px;}
+  .wk{font-weight:800;font-size:14px;}
+  .dates{font-size:11.5px;color:#6d7b87;font-weight:700;}
   .tag{
-    font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;
-    padding:4px 10px;border-radius:999px;
+    font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;
+    padding:2px 7px;border-radius:999px;margin-left:auto;
   }
   .tag.done{background:#E4F8F1;color:#0F8C63;}
   .tag.now{background:#FFF1E4;color:#C25A11;}
   .tag.next{background:#F1ECFE;color:#6338CF;}
+  
   .goal{
-    font-size:14px;font-weight:700;color:var(--blue);
-    background:var(--bg-soft);border-radius:12px;
-    padding:9px 12px;margin:8px 0 12px;
+    font-size:12.5px;font-weight:700;color:var(--blue);
+    background:var(--bg-soft);border-radius:8px;
+    padding:6px 10px;margin:6px 0 10px;
   }
   .row.is-now .goal{background:#FFF4EA;color:#C25A11;}
 
   /* чек-лист */
   ul.tasks{list-style:none;margin:0;padding:0;}
-  ul.tasks li{margin:0 0 9px;}
+  ul.tasks li{margin:0 0 8px;}
   ul.tasks label{
     display:flex;gap:10px;align-items:flex-start;cursor:pointer;
-    font-size:14px;line-height:1.45;
+    font-size:13px;line-height:1.4;padding:2px 0;
   }
   ul.tasks input{
     appearance:none;-webkit-appearance:none;
-    width:20px;height:20px;flex:0 0 20px;margin-top:1px;
+    width:22px;height:22px;flex:0 0 22px;margin-top:0px;
     border:2px solid var(--border);border-radius:6px;background:#fff;
-    cursor:pointer;position:relative;transition:.15s;
+    cursor:pointer;position:relative;
   }
-  ul.tasks input:hover{border-color:var(--blue);}
-  ul.tasks input:focus-visible{outline:3px solid #9AD6FF;outline-offset:2px;}
   ul.tasks input:checked{background:var(--green);border-color:var(--green);}
   ul.tasks input:checked::after{
-    content:"";position:absolute;left:5px;top:1px;width:5px;height:11px;
-    border:solid #fff;border-width:0 2.5px 2.5px 0;transform:rotate(45deg);
+    content:"";position:absolute;left:6px;top:2px;width:5px;height:10px;
+    border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg);
   }
   ul.tasks input:checked + span{color:#8a949c;text-decoration:line-through;}
+  
   .alert{
-    border-left:4px solid var(--orange);
-    background:#FFF7F0;border-radius:12px;
-    padding:10px 12px;font-size:13.5px;margin-top:8px;
+    border-left:3px solid var(--orange);
+    background:#FFF7F0;border-radius:8px;
+    padding:6px 10px;font-size:12px;margin-top:6px;
   }
   .bar{
-    height:8px;border-radius:99px;background:var(--bg-soft2);
-    margin-top:14px;overflow:hidden;
+    height:6px;border-radius:99px;background:var(--bg-soft2);
+    margin-top:10px;overflow:hidden;
   }
   .bar > i{display:block;height:100%;background:var(--green);width:0;transition:width .3s;}
 
   .start-flag{
-    display:flex;justify-content:center;margin-bottom:26px;
+    margin-left:14px;margin-bottom:4px;
   }
   .start-flag .badge{
     background:var(--bg-soft);border:1px dashed var(--blue);
-    color:var(--blue);border-radius:999px;padding:8px 18px;font-weight:800;font-size:13px;
+    color:var(--blue);border-radius:999px;padding:5px 12px;font-weight:800;font-size:11.5px;
+    display:inline-block;
   }
 
-  /* ---------- LEGEND ---------- */
+  /* ---------- FOOTER INFO ---------- */
+  .bottom-grid{
+    display:flex;flex-direction:column;gap:12px;
+    margin-top:16px;
+  }
   .legend{
     background:var(--white);border:1px solid var(--border);
     border-radius:var(--radius-card);box-shadow:var(--shadow);
-    padding:20px 22px;margin-top:10px;
+    padding:14px 16px;
   }
-  .legend h2{font-size:16px;font-weight:800;margin:0 0 14px;}
-  .legend-grid{display:flex;flex-wrap:wrap;gap:22px;}
-  .legend-item{display:flex;align-items:center;gap:10px;font-size:14px;}
-  .swatch{width:16px;height:16px;border-radius:50%;flex:0 0 16px;}
+  .legend h2{font-size:13.5px;font-weight:800;margin:0 0 8px;}
+  .legend-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .legend-item{display:flex;align-items:center;gap:6px;font-size:12px;}
+  .swatch{width:10px;height:10px;border-radius:50%;flex:0 0 10px;}
   .swatch.done{background:var(--green);}
   .swatch.now{background:var(--orange);}
   .swatch.next{background:var(--violet);}
   .swatch.blue{background:var(--blue);}
 
-  /* ---------- QR ---------- */
-  .qr{
-    display:flex;flex-wrap:wrap;gap:22px;align-items:center;
+  /* Ссылка-обертка для QR-кода */
+  .qr-box{
     background:var(--white);border:1px solid var(--border);
     border-radius:var(--radius-card);box-shadow:var(--shadow);
-    padding:20px 22px;margin-top:18px;
+    padding:12px 14px;display:flex;align-items:center;gap:12px;
+    text-decoration:none;color:inherit;transition:.18s ease;
   }
-  .qr a{display:block;flex:0 0 auto;line-height:0;border-radius:14px;}
-  .qr a:focus-visible{outline:3px solid #9AD6FF;outline-offset:3px;}
-  .qr a img{display:block;width:200px;height:200px;max-width:100%;}
-  .qr-text{font-size:14.5px;font-weight:700;max-width:520px;}
-  .qr-text strong{display:block;font-size:16px;font-weight:800;margin-bottom:6px;}
-  .print-hint{font-size:12.5px;color:#6d7b87;margin-top:10px;font-weight:600;}
+  .qr-box:hover{border-color:var(--blue);background:#F9FBFF;}
+  .qr-code-wrap{
+    width:75px;height:75px;flex:0 0 75px;
+    background:#fff;border-radius:6px;overflow:hidden;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .qr-text{font-size:11.5px;color:#6d7b87;}
+  .qr-text strong{display:block;font-size:12.5px;color:var(--text);margin-bottom:2px;}
+  .qr-text span{color:var(--blue);font-weight:700;display:inline-block;margin-top:2px;}
 
-  /* ---------- FIRE (EASTER EGG) ---------- */
   .fire-block{
-    text-align:center;
-    margin-top:24px;
-    font-size:14px;
-    color:#6d7b87;
-    font-weight:700;
-  }
-
-  /* ---------- RESPONSIVE ---------- */
-  @media (max-width:860px){
-    .wrap{padding:20px 14px 80px;}
-    .timeline::before{left:26px;transform:none;}
-    .row{grid-template-columns:56px 1fr;gap:0 14px;margin-bottom:24px;}
-    .row .node{grid-column:1;width:52px;height:52px;font-size:11px;}
-    .row .node b{font-size:18px;}
-    .row.is-now .node::after{width:52px;height:52px;}
-    .row:nth-child(odd) .card,
-    .row:nth-child(even) .card{grid-column:2;}
-    .row:nth-child(odd) .card::after,
-    .row:nth-child(even) .card::after{display:none;}
-    header.top{padding:18px;}
-    .head-actions{width:100%;}
-    .qr a img{width:160px;height:160px;}
-  }
-
-  /* ---------- PRINT ---------- */
-  @media print{
-    body{background:#fff !important;background-image:none !important;}
-    .wrap{max-width:none;padding:0;}
-    .head-actions,.filters,.print-hint,.fire-block{display:none !important;}
-    .card,.legend,header.top,.qr{box-shadow:none;}
-    .row{break-inside:avoid;page-break-inside:avoid;}
-    .timeline::before{opacity:.4;}
-    a[href]:after{content:"";}
-    @page{size:A4 portrait;margin:12mm;}
+    text-align:center;margin-top:14px;font-size:12px;color:#6d7b87;font-weight:700;
   }
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="wrap" id="captureArea">
 
   <header class="top">
     <div class="logo">
       <div class="logo-mark" aria-hidden="true">МШП</div>
       <div class="logo-text">
         <strong>Московская школа программистов</strong>
-        <span>Карта событий онбординга · 6 недель</span>
+        <span>Онбординг преподавателя</span>
       </div>
     </div>
+    <div>
+      <h1>Онбординг ученика</h1>
+      <p class="subtitle">Маршрут: от первого занятия до признания</p>
+    </div>
     <div class="head-actions">
-      <button class="btn" id="collapseAll" type="button">Свернуть все блоки</button>
+      <button class="btn" id="collapseAll" type="button">Свернуть</button>
+      <button class="btn primary" id="downloadPng" type="button">📥 Скачать PNG</button>
     </div>
   </header>
 
-  <h1>Онбординг нового ученика: от первого занятия до признания</h1>
-  <p class="subtitle">Маршрут преподавателя: 0 → 6 неделя. Отмечайте выполненные задачи — прогресс сохраняется на этом устройстве.</p>
-
-  <div class="filters" role="group" aria-label="Фильтр недель по статусу">
-    <span class="label">Показать:</span>
-    <button class="chip active" data-f="all" type="button">Все недели</button>
-    <button class="chip" data-f="done" type="button"><span class="dot"></span>Завершено</button>
+  <div class="filters" role="group" aria-label="Фильтр недель">
+    <button class="chip active" data-f="all" type="button">Все</button>
+    <button class="chip" data-f="done" type="button"><span class="dot"></span>Готово</button>
     <button class="chip" data-f="now" type="button"><span class="dot"></span>Текущее</button>
-    <button class="chip" data-f="next" type="button"><span class="dot"></span>Предстоящее</button>
+    <button class="chip" data-f="next" type="button"><span class="dot"></span>План</button>
   </div>
 
   <div class="timeline" id="timeline">
 
-    <div class="start-flag"><span class="badge">ПОДГОТОВКА · 0 НЕДЕЛЯ · АВГУСТ</span></div>
+    <div class="start-flag"><span class="badge">ПОДГОТОВКА · 0 НЕДЕЛЯ (АВГУСТ)</span></div>
 
     <!-- 0 -->
     <section class="row is-done" data-status="done" data-week="0">
-      <div class="node"><b>0</b>авг</div>
+      <div class="node"><b>0</b></div>
       <div class="card">
         <div class="card-head">
-          <span class="wk">0 неделя · Начало</span>
+          <span class="wk">0 неделя</span>
           <span class="dates">Август</span>
-          <span class="tag done">Завершено</span>
+          <span class="tag done">Готово</span>
         </div>
-        <div class="goal">Цель: обеспечить плановый старт обучения.</div>
+        <div class="goal">Цель: плановый старт обучения.</div>
         <ul class="tasks" data-key="w0">
-          <li><label><input type="checkbox"><span>Провести запланированные занятия «Стремительный старт»</span></label></li>
+          <li><label><input type="checkbox"><span>Провести «Стремительный старт»</span></label></li>
         </ul>
         <div class="bar"><i></i></div>
       </div>
@@ -334,18 +283,18 @@
 
     <!-- 1 -->
     <section class="row is-done" data-status="done" data-week="1">
-      <div class="node"><b>1</b>нед</div>
+      <div class="node"><b>1</b></div>
       <div class="card">
         <div class="card-head">
-          <span class="wk">1 неделя · Вовлечение и ориентация</span>
+          <span class="wk">1 неделя · Вовлечение</span>
           <span class="dates">05.09 – 11.09</span>
-          <span class="tag done">Завершено</span>
+          <span class="tag done">Готово</span>
         </div>
-        <div class="goal">Цель: ученик знает группу и администратора, умеет войти в личный кабинет.</div>
+        <div class="goal">Цель: знакомство с группой и личным кабинетом.</div>
         <ul class="tasks" data-key="w1">
-          <li><label><input type="checkbox"><span>Провести знакомство с группой (игры на знакомство)</span></label></li>
-          <li><label><input type="checkbox"><span>Представить администратора отделения</span></label></li>
-          <li><label><input type="checkbox"><span>Проверить вход в личный кабинет; при трудностях — заявка в Информатиксе</span></label></li>
+          <li><label><input type="checkbox"><span>Игры на знакомство в группе</span></label></li>
+          <li><label><input type="checkbox"><span>Представить администратора</span></label></li>
+          <li><label><input type="checkbox"><span>Проверить вход в личный кабинет</span></label></li>
         </ul>
         <div class="bar"><i></i></div>
       </div>
@@ -353,56 +302,55 @@
 
     <!-- 2 — ТЕКУЩАЯ -->
     <section class="row is-now" data-status="now" data-week="2">
-      <div class="node"><b>2</b>нед</div>
+      <div class="node"><b>2</b></div>
       <div class="card">
         <div class="card-head">
-          <span class="wk">2 неделя · Идентификация тревожных сигналов</span>
+          <span class="wk">2 неделя · Тревожные сигналы</span>
           <span class="dates">12.09 – 18.09</span>
           <span class="tag now">Вы здесь</span>
         </div>
-        <div class="goal">Цель: заметить отстранённых учеников и включить их в жизнь группы.</div>
+        <div class="goal">Цель: включить отстранённых учеников.</div>
         <ul class="tasks" data-key="w2">
           <li><label><input type="checkbox"><span>Продолжить знакомство с группой</span></label></li>
-          <li><label><input type="checkbox"><span>❗ Выдать в ВК Фоны. Неделя 1 / ШПаспорт в очном отделении</span></label></li>
-          <li><label><input type="checkbox"><span>❗ Отметить тревожных учеников в Информатиксе и кураторам</span></label></li>
+          <li><label><input type="checkbox"><span>❗ Выдать Фоны / ШПаспорт</span></label></li>
+          <li><label><input type="checkbox"><span>❗ Отметить тревожных в Информатиксе</span></label></li>
         </ul>
-        <div class="alert"><b>Внимание:</b> пункты со знаком ❗ — обязательные на этой неделе.</div>
+        <div class="alert">❗ Обязательные пункты недели.</div>
         <div class="bar"><i></i></div>
       </div>
     </section>
 
     <!-- 3 -->
     <section class="row is-next" data-status="next" data-week="3">
-      <div class="node"><b>3</b>нед</div>
+      <div class="node"><b>3</b></div>
       <div class="card">
         <div class="card-head">
-          <span class="wk">3 неделя · Создание группового символа. Начало</span>
+          <span class="wk">3 неделя · Символ группы (Старт)</span>
           <span class="dates">19.09 – 25.09</span>
-          <span class="tag next">Предстоящее</span>
+          <span class="tag next">План</span>
         </div>
-        <div class="goal">Цель: запустить создание группового символа и удержать вовлечённость группы.</div>
+        <div class="goal">Цель: запустить создание символа группы.</div>
         <ul class="tasks" data-key="w3">
-          <li><label><input type="checkbox"><span>Провести активность (создание логотипа, флешмоб, мемы и т.д.)</span></label></li>
-          <li><label><input type="checkbox"><span>❗ Повторный мини-отчёт по тревожным в Информатиксе и кураторам</span></label></li>
+          <li><label><input type="checkbox"><span>Активность (логотип, мемы, флешмоб)</span></label></li>
+          <li><label><input type="checkbox"><span>❗ Повторный отчёт по тревожным</span></label></li>
         </ul>
-        <div class="alert"><b>Внимание:</b> пункт со знаком ❗ является обязательным.</div>
         <div class="bar"><i></i></div>
       </div>
     </section>
 
     <!-- 4 -->
     <section class="row is-next" data-status="next" data-week="4">
-      <div class="node"><b>4</b>нед</div>
+      <div class="node"><b>4</b></div>
       <div class="card">
         <div class="card-head">
-          <span class="wk">4 неделя · Создание группового символа. Демонстрация</span>
+          <span class="wk">4 неделя · Символ группы (Демо)</span>
           <span class="dates">26.09 – 02.10</span>
-          <span class="tag next">Предстоящее</span>
+          <span class="tag next">План</span>
         </div>
-        <div class="goal">Цель: показать групповой символ и закрепить принадлежность к группе.</div>
+        <div class="goal">Цель: показать символ и закрепить сплоченность.</div>
         <ul class="tasks" data-key="w4">
-          <li><label><input type="checkbox"><span>Провести активность (создание логотипа, флешмоб, мемы и т.д.)</span></label></li>
-          <li><label><input type="checkbox"><span>Повторный мини-отчёт по тревожным в Информатиксе и кураторам</span></label></li>
+          <li><label><input type="checkbox"><span>Презентация группового символа</span></label></li>
+          <li><label><input type="checkbox"><span>Мониторинг вовлечённости</span></label></li>
         </ul>
         <div class="bar"><i></i></div>
       </div>
@@ -410,63 +358,63 @@
 
     <!-- 5 -->
     <section class="row is-next" data-status="next" data-week="5">
-      <div class="node"><b>5</b>нед</div>
+      <div class="node"><b>5</b></div>
       <div class="card">
         <div class="card-head">
           <span class="wk">5 неделя · Анкета-барометр</span>
           <span class="dates">03.10 – 09.10</span>
-          <span class="tag next">Предстоящее</span>
+          <span class="tag next">План</span>
         </div>
-        <div class="goal">Цель: измерить, как ученик чувствует себя в группе.</div>
+        <div class="goal">Цель: измерить комфорт ученика в группе.</div>
         <ul class="tasks" data-key="w5">
           <li><label><input type="checkbox"><span>❗ Провести анкету-барометр</span></label></li>
         </ul>
-        <div class="alert"><b>Внимание:</b> обязательное мероприятие недели.</div>
         <div class="bar"><i></i></div>
       </div>
     </section>
 
     <!-- 6 -->
     <section class="row is-next" data-status="next" data-week="6">
-      <div class="node"><b>6</b>нед</div>
+      <div class="node"><b>6</b></div>
       <div class="card">
         <div class="card-head">
-          <span class="wk">6 неделя · Вручение символа завершения онбординга</span>
+          <span class="wk">6 неделя · Финал онбординга</span>
           <span class="dates">10.10 – 16.10</span>
-          <span class="tag next">Предстоящее</span>
+          <span class="tag next">План</span>
         </div>
-        <div class="goal">Цель: отметить пройденный путь и закрепить принадлежность к школе.</div>
+        <div class="goal">Цель: отметить пройденный путь.</div>
         <ul class="tasks" data-key="w6">
-          <li><label><input type="checkbox"><span>❗ Вручить секретный виртуальный фон в ВК Фоны. Неделя 6 / подарки в очном отделении</span></label></li>
+          <li><label><input type="checkbox"><span>❗ Вручить секретный фон / подарок</span></label></li>
         </ul>
-        <div class="alert"><b>Внимание:</b> итоговое обязательное событие онбординга.</div>
         <div class="bar"><i></i></div>
       </div>
     </section>
 
   </div>
 
-  <div class="legend">
-    <h2>Легенда</h2>
-    <div class="legend-grid">
-      <div class="legend-item"><span class="swatch done"></span>Завершено — этап пройден</div>
-      <div class="legend-item"><span class="swatch now"></span>Текущее — «Вы здесь» (2 неделя, 12.09–18.09)</div>
-      <div class="legend-item"><span class="swatch next"></span>Предстоящее — план на следующие недели</div>
-      <div class="legend-item"><span class="swatch blue"></span>Задача недели — отметьте галочкой, когда выполнено</div>
+  <div class="bottom-grid">
+    <div class="legend">
+      <h2>Легенда</h2>
+      <div class="legend-grid">
+        <div class="legend-item"><span class="swatch done"></span>Готово</div>
+        <div class="legend-item"><span class="swatch now"></span>Текущее</div>
+        <div class="legend-item"><span class="swatch next"></span>План</div>
+        <div class="legend-item"><span class="swatch blue"></span>Задача</div>
+      </div>
     </div>
-    <p class="print-hint">Фильтры при печати не выводятся.</p>
-  </div>
-
-  <div class="qr">
-    <a href="https://qrcod.ru/" alt="qr code" target="_blank"><img src="https://qrcod.ru/hmVS.svg" width="200" height="200" alt="QR-код документа"></a>
-    <div class="qr-text">
-      <strong>QR-код документа</strong>
-      Наведите камеру телефона, чтобы открыть подробную инструкцию по каждому этапу из отдельного текстового документа преподавателя.
-    </div>
+    
+    <a href="https://docs.google.com/document/d/112JFp16QymKClqDTpwWjinjC1LdUM-ZN6A0QUQnFjlk/edit?usp=sharing" class="qr-box" id="docLink" target="_blank" rel="noopener">
+      <div class="qr-code-wrap" id="qrcode"></div>
+      <div class="qr-text">
+        <strong>Официальный документ</strong>
+        Сканируйте камерой телефона или нажмите, чтобы открыть.
+        <span>Открыть документ ↗</span>
+      </div>
+    </a>
   </div>
 
   <div class="fire-block">
-    🔥 Кто дочитал до конца — тот молодец, ставьте огонек!
+    🔥 Теперь QR-код генерируется локально и ведет строго на ваш документ!
   </div>
 
 </div>
@@ -474,6 +422,20 @@
 <script>
 (function(){
   "use strict";
+
+  // ССЫЛКА НА ДОКУМЕНТ (укажите здесь нужный адрес)
+  var docUrl = "https://example.com/your-document-link";
+  document.getElementById('docLink').href = docUrl;
+
+  // Генерация чистого QR-кода без сторонних сервисов
+  new QRCode(document.getElementById("qrcode"), {
+    text: docUrl,
+    width: 75,
+    height: 75,
+    colorDark : "#000000",
+    colorLight : "#ffffff",
+    correctLevel : QRCode.CorrectLevel.M
+  });
 
   var lists = document.querySelectorAll('ul.tasks');
 
@@ -488,14 +450,14 @@
   }
 
   function save(list){
-    var key = 'mshp_onb_' + list.dataset.key;
+    var key = 'mshp_onb_mob_' + list.dataset.key;
     var state = [];
     list.querySelectorAll('input[type=checkbox]').forEach(function(b){ state.push(b.checked ? 1 : 0); });
     try{ localStorage.setItem(key, JSON.stringify(state)); }catch(e){}
   }
 
   lists.forEach(function(list){
-    var key = 'mshp_onb_' + list.dataset.key;
+    var key = 'mshp_onb_mob_' + list.dataset.key;
     var saved = null;
     try{ saved = JSON.parse(localStorage.getItem(key) || 'null'); }catch(e){ saved = null; }
     var boxes = list.querySelectorAll('input[type=checkbox]');
@@ -532,11 +494,28 @@
     document.querySelectorAll('.card ul.tasks, .card .goal, .card .bar, .card .alert').forEach(function(el){
       el.style.display = collapsed ? 'none' : '';
     });
-    collapseBtn.textContent = collapsed ? 'Развернуть все блоки' : 'Свернуть все блоки';
+    collapseBtn.textContent = collapsed ? 'Развернуть' : 'Свернуть';
     collapseBtn.classList.toggle('done', collapsed);
     lists.forEach(updateBar);
   });
 
+  var downloadBtn = document.getElementById('downloadPng');
+  downloadBtn.addEventListener('click', function(){
+    downloadBtn.textContent = '⏳';
+    downloadBtn.disabled = true;
+    html2canvas(document.getElementById('captureArea'), { scale: 2, useCORS: true }).then(function(canvas){
+      var link = document.createElement('a');
+      link.download = 'onboarding-mobile.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      downloadBtn.textContent = '📥 Скачать PNG';
+      downloadBtn.disabled = false;
+    }).catch(function(){
+      alert('Ошибка при создании изображения.');
+      downloadBtn.textContent = '📥 Скачать PNG';
+      downloadBtn.disabled = false;
+    });
+  });
 })();
 </script>
 </body>
